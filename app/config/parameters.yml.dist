@@ -1,11 +1,12 @@
 parameters:
     database_driver:   pdo_sqlite
-    database_path:     '%kernel.root_dir%/app.sqlite'
-    database_host:     null
+    #database_driver:   pdo_mysql
+    database_path:     "%kernel.root_dir%/app.sqlite"
+    database_host:     127.0.0.1
     database_port:     ~
-    database_name:     null
-    database_user:     null
-    database_password: null
+    database_name:     nymph
+    database_user:     dbuser
+    database_password: dbpass
 
     mailer_transport:  smtp
     mailer_host:       127.0.0.1
