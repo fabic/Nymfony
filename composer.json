@@ -22,7 +22,8 @@
         "jms/serializer-bundle": "0.12.*@dev",
         "friendsofsymfony/rest-bundle": "0.12.*@dev",
         "elao/web-profiler-extra-bundle": "2.2.*@dev",
-        "apy/datagrid-bundle": "dev-master"
+        "apy/datagrid-bundle": "dev-master",
+        "jms/debugging-bundle": "dev-master"
     },
     "scripts": {
         "post-install-cmd": [
