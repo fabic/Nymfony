@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# F.2013-03-30 Sat.
+#
+# http://getcomposer.org/ : PHP's dependency manager.
+#
+# A wrapper for running Composer.phar (& having it installed if not present).
+#
+
+# Real path to us so that we can be symlinked.
+HERE=$(cd `dirname $(realpath "$0")` && pwd )
+
+PHPBIN=${PHPBIN:-`which php`}
+
+
+# Download Composer.phar if it doesn't exist *here* along this script :
+if [ ! -f "$HERE/composer.phar" ]; then
+	echo "Composer.phar not found in '$HERE', getting it now!"
+	curl -s https://getcomposer.org/installer | php -- --install-dir="$HERE"
+fi
+
+echo "---"
+echo "INFO: CWD is $PWD"
+echo "INFO: Using php at: $PHPBIN."
+echo "INFO: php --ini :"
+$PHPBIN --ini
+echo "---"
+
+#$PHPBIN "$HERE/composer.phar" -- "$@"
+$PHPBIN "$HERE/composer.phar" "$@"
+
+# vim:ft=sh
