@@ -3,6 +3,7 @@ imports:
     - { resource: security.yml }
     - { resource: jms_serializer.yml }
     - { resource: fos_rest.yml }
+    - { resource: knp_menu.yml }
 
 framework:
     #esi:             ~
