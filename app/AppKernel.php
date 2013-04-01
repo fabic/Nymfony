@@ -24,6 +24,8 @@ class AppKernel extends Kernel
             new FOS\RestBundle\FOSRestBundle(),
 
             new APY\DataGridBundle\APYDataGridBundle(),
+
+            new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
