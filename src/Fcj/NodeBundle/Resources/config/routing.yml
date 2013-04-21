@@ -1,0 +1,9 @@
+fcj_node_homepage:
+    pattern:  /
+    defaults: { _controller: FcjNodeBundle:Default:index }
+
+# name_prefix: fcj_node_ (todo?)
+nodes:
+    type: rest
+    resource: Fcj\NodeBundle\Controller\NodeController
+

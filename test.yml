@@ -1,0 +1,164 @@
+# Form Spec test
+
+person:
+    #default_required: true
+    parts:
+        #gender: { type: gender }
+        title: { type: text, length: 16 }
+        firstname: { type: text }
+        lastname:  { type: text }
+        dateOfBirth: { type: birthday, required: false }
+        #nationality: { }
+        email: { type: email }
+        phone: { type: text }
+        fax:   { type: text, required: false }
+
+address:
+    parts:
+        street: { type: textarea, length:255 }
+        postalCode: { type: text, length: 64 }
+        city:   { type: text, length: 192 }
+        country: { type: country }
+
+organisation:
+    parts:
+        name:       { type: text, length: 192 }
+        department: { type: text, length: 192 }
+        group:      { type: text }
+        address:    { type: address }
+
+person_in_organisation:
+    # TODO: type: associationClass ? relationWithCarriedData ?
+    # TODO: storage_strategy: embedded_table
+    parts:
+        person:       { type: person }
+        organisation:
+            type: organisation
+            # todo: having it being picked from a list of predefined organisations.
+            # todo.. e.g. specifying a DQL, or ability for client-code to programmatically
+            # todo.. specify form type behavior.
+            # E.g.:
+            #references: { tableName: organisation, sqlSelect: "SELECT..."   ???
+            #references: { entity: Organisation, dqlSelect: "SELECT..."   ???
+            #filterOut: [ 1, 2, 3, 5, 8, 13 }
+            #filterOut: closure "function($id) { return true/false; }
+
+simple_person_in_loose_organisation:
+    parts:
+        person:       { type: person }
+        organisation: { type: text, length: 255 }
+
+simple_person:
+    parts:
+        name:  { type: text,  label: "Name" }
+        email: { type: email, label: "E-mail" }
+
+#byte_unit:
+#    type: enum...? custom doctrine type ?
+
+byte_quantity:
+    parts:
+        amount: { type: integer }
+        #unit:   { type: byte_unit }
+
+computer_resources_v1:
+    # fieldset legend concept, may be overriden by parent form spec.
+    legend: "Computer resources requested"
+    extra:
+        narratives: "For all fields below, you can find information on range limits in the Technical Guidelines for Applicants."
+    parts:
+        totalStorageScratch: { type: byte_quantity }
+        totalStorageWork:    { type: byte_quantity }
+        totalStorageHome:    { type: byte_quantity }
+        totalStorageArchive: { type: byte_quantity }
+
+application_form:
+    name: application_form_v1
+    extra:
+        narratives:
+            - "Blabla 1"
+            - "Blah Blaaaah Blah! (2)"
+            - "Etc... (3)"
+        'guidelines_top': "Please don't forget to click the <strong>Save</strong> button."
+    parts:
+        projectName: { type: textarea, label: "Project name" }
+        projectAccronym:
+            type: text
+            required: false
+        #researchField:
+        #   type: ...
+        contactPerson:
+            type: simple_person
+            collection: true
+            extra:
+                allow_add: true
+                allow_delete: true
+                prototype_name: __contact_person__
+        projectLeader:
+            type: person
+            #many: true
+            ## Implied "many" :
+            #at_least: 1
+            #at_most: 3
+        #collaborators:
+        #    type: person
+        ## OR ?
+        collaborators:
+            type: person_in_organisation
+        #    cardinality: Many
+        #organisations:
+        #    type: organisation
+        #    many: true
+        #computerSystems:
+        #    type: choice
+        #    multiple: true
+            # todo: How to populate the choice list?
+            # todo.. e.g. choice: { fromTable: <tablename> // fromDQL: "SELECT..."
+
+        summary:
+            type: textarea
+            length: ~
+            label: "Summary of the project"
+            extra:
+                narratives: "If the project is successful this will be published on the PRACE website unless you mark it as confidential below. Please make this summary understandable to a general audience. (500 words)"
+                word_limit: 500
+
+        bibliography:
+            type: textarea
+            length: ~
+            label: "Recent bibliographic references that are relevant to the project"
+
+        proposedReviewers:
+            type: simple_person_in_loose_organisation
+            at_most: three
+            #display: all_inline  ## todo: howto?
+        ## OR: proposedReviewer1, ...2, ...3 ?
+
+        computer_resources_requested:
+            #legend: "A legend that would override target type's provided legend text."
+            type: computer_resources_v1
+
+    presentation:
+        template: @application_form_v1.html.twig
+        sections:
+            general_info:
+                heading: "General information"
+                parts:
+                    - projectName
+                    - projectAccronym
+            project_leader:
+                heading: "Project leader (personal data and contact)"
+                parts:
+                    - projectLeader
+
+## todo/idea: Reverse-engineered form spec. from table structure ?
+## One table:
+#technical_review_form_1st_call:
+#    from: { table: technical_review_2010_02 }
+## Multiple tables:
+#application_form_2nd_call:
+#    from:
+#      - { table: proposal_2010_03 }
+#      - { table: proposal_content_2010_03 }
+#      - { table: proposal_resources_2010_03 }
+#      - { table: proposed_reviewers_2010_03 }

@@ -1,0 +1,499 @@
+#
+## Form Spec test
+#
+
+#######################################################################
+## BASE TYPE (extends: true)
+#######################################################################
+
+yesno:
+    extends: choice
+    options:
+        choices:
+            yes: Yes
+            no:  No
+        expanded: true
+
+number2decimals:
+    extends: number
+    options:
+        precision: 2
+        grouping: true
+
+
+gender:
+    extends: choice
+    options:
+        choices:
+            M: "Male"
+            F: "Female"
+
+byte_unit:
+    extends: choice
+    options:
+       choices:
+           B:  Byte
+           KB: Kilo-byte
+           MB: Mega-byte
+           GB: Giga-byte
+           TB: Tera-byte
+
+time_unit:
+    extends: choice
+    options:
+        choices:
+            s: Second
+            m: Minute
+            H: Hour
+            D: Day
+            W: Week
+            M: Month
+            Y: Years
+
+nationality:
+    extends: choice
+    pass:
+        nationalities: { as: option, key: choices }
+
+country2:
+    extends: country
+    receive:  # TODO.
+        countries: { as: option, key: choices, optional: true }
+
+
+#######################################################################
+## BASE COMPOUND TYPES
+#######################################################################
+
+byte_quantity:
+    embedded: true
+    parts:
+        %:      { type: integer }
+        %_unit: { type: byte_unit }
+
+time_quantity:
+    parts:
+        %:      { type: integer }
+        %_unit: { type: time_unit }
+
+postal_address:
+    parts:
+        street:      { type: textarea, length:255 }
+        postal_code: { type: text,     length: 64 }
+        city:        { type: text,     length: 192 }
+        country:
+            type: country
+            pass:
+                countries: { as: option, key: choices }
+        #todo:
+        country: { type: country2 }
+
+contact:
+    # todo/idea: Concept of « One of », e.g. a contact may be one given field (=>chooser) « out of » the parts list.
+    parts:
+        email:        { type: email }
+        phone_number: { type: text, label: "Phone number", required: false }
+        fax_number:   { type: text, label: "Fax number", required: false }
+        address:      { type: postal_address }
+
+research_field_v1:
+    extends: choice
+    #options:
+    #    choices: @:research_fields
+    receive:
+        research_fields: { as: option, key: choices, required: true }
+
+research_field_erc:
+    extends: choice
+    #options:
+    #    choices: @:research_fields_erc
+    receive:
+        research_fields_erc: { as: option, key: choices, required: true }
+
+erc_research_field_pct:
+    parts:
+        research_field: { type: research_field_erc }
+        percentage:
+            type: percent
+            options:
+                type: integer
+
+simple_person:
+    parts:
+        name:  { type: text,  label: "Name" }
+        email: { type: email, label: "E-mail" }
+
+person:
+    parts:
+        gender:     { type: gender, required: false }
+        title:      { type: text, length: 16 }
+        firstname:  { type: text }
+        middlename: { type: text, required: false }
+        lastname:   { type: text }
+        date_of_birth: { type: birthday, required: false }
+        nationality:
+            type: nationality
+            pass:
+                nationalities: ~
+        #contacts:
+        #    type: contact
+        #    collection: true
+        email: { type: email }
+        phone: { type: text }
+        fax:   { type: text, required: false }
+
+# todo/idea: having external « extends / is-a » relationship declaration,
+# todo... e.g. abstract_person: [ person, simple_person ]   ?
+
+organisation:
+    parts:
+        name:       { type: text, length: 192 }
+        department: { type: text, length: 192 }
+        group:      { type: text }
+        address:    { type: postal_address, embedded: true }
+        #contacts: { type: contact, collection: true }
+
+simple_person_in_loose_organisation:
+    parts:
+        person:       { type: simple_person, embedded: true }
+        organisation: { type: textarea, length: 255 }
+
+
+#######################################################################
+# « JOINS » -like stuff
+#######################################################################
+
+person_in_organisation:
+    # TODO: type: associationClass ? relationWithCarriedData ?
+    # TODO: storage_strategy: embedded_table
+    parts:
+        person:
+            type: person
+            pass: { nationalities: ~ }
+        job_title:   { type: text, length: 96 }
+        web_address: { type: text }
+
+        organisation: # FIXME
+            type: organisation
+            # todo: having it being picked from a list of predefined organisations.
+            # todo.. e.g. specifying a DQL, or ability for client-code to programmatically
+            # todo.. specify form type behavior.
+            # E.g.:
+            #references: { tableName: organisation, sqlSelect: "SELECT..."   ???
+            #references: { entity: Organisation, dqlSelect: "SELECT..."   ???
+            #filterOut: [ 1, 2, 3, 5, 8, 13 ]
+            #filterOut: closure "function($id) { return true/false; }
+
+
+
+#######################################################################
+## APPLICATION FORM version 1
+#######################################################################
+
+proposal_access_type:
+    extends: choice
+    options:
+        choices:
+            PROJECT:   "Project access"
+            PROGRAMME: "Programme access"
+    receive:
+        proposal_types: { as: option, key: choices, optional: true }
+
+job_size_cores_memory:
+    embedded: true
+    parts:
+        core_hours_min:  { type: integer }
+        core_hours_avg:  { type: integer }
+        core_hours_max:  { type: integer }
+        core_memory_min: { type: number2decimals }
+        core_memory_avg: { type: number2decimals }
+        core_memory_max: { type: number2decimals }
+
+
+######
+## COMPUTER RESOURCES REQUESTED, version 1
+#
+computer_resources_v1:
+    # fieldset legend concept, may be overriden by parent form spec. // todo: move it under extra ?
+    legend: "Computer resources requested"
+
+    extra:
+        narratives:
+            - "For all fields below, you can find information on range limits in the Technical Guidelines for Applicants."
+            - "Please check recommended limits for data transfer in the Technical Guidelines (Data Transfer section)."
+            - ""
+        stars:
+            - "* Maximum number of files to be stored."
+            - "** <em>: Millions</em>"
+            - "*** Data transfer."
+
+    parts:
+        #
+        number_of_simultaneous_jobs: { type: integer,   label: "Number of jobs that can run simultaneously, i.e. do not depend on each other" }
+        wallclock_time_typical_run:  { type: time_quantity, label: "Wall clock time of a typical job execution" }
+        checkpoints_enabled_code:    { type: yesno,     label: "Are you able to write checkpoint?" }
+        checkpoints_max_interval:    { type: time_quantity, label: "Maximum time between 2 checkpoints (hours)" }
+        # Total storage :
+        total_storage_scratch: { type: byte_quantity } #, label: "Total storage (<u>scratch</u>) &ndash;<br>scratch files during simulation, log files, checkpoints (GB/TB)" }
+        total_storage_work:    { type: byte_quantity }
+        total_storage_home:    { type: byte_quantity }
+        total_storage_archive: { type: byte_quantity }
+        # Number of files :
+        max_number_of_files_scratch: { type: integer, label: "Number of files (<u>scratch</u>) (Mio**)" }
+        max_number_of_files_work:    { type: integer }
+        max_number_of_files_home:    { type: integer }
+        max_number_of_files_archive: { type: integer }
+        #
+        amount_data_transfered: { type: byte_quantity, label: "Total amount of data to be transferred to/from the production system (GB/TB)" }
+        strategy_data_handling: { type: textarea, label: "Be aware that transfer rates above a reasonable value could be unfeasible. Describe your strategy concerning the handling of data (pre/post processing, transfer of data to/from the production system, retrieving relevant data for long-term). Justify it and explain how you plan to manage it (Maximum 500 words) :" }
+        #
+        io_strategy_parallel: { type: integer }
+        io_data_traffic:      { type: byte_quantity }
+        io_generated_files_per_hour_typical_job: { type: integer }
+        #
+        expected_job_size_cores_memory:
+            label: "Expected job size (number of cores) and job memory (total memory usage over all cores of jobs)"
+            type: job_size_cores_memory
+
+
+
+#research_field_v1_alt:
+#    extends: choice
+#    extends: @CinesPeerReviewBundle:Form/ResearchFieldType
+#    extends: @entity:CinesPeerReviewBundle:Form/ResearchFieldType
+#
+#    options:
+#       choices: @dbal:my_table_name
+#       choices: @parent:options:drops:research_fields_list
+#       choices: @entity:CinesPeerReviewBundle:Form/ResearchFieldType
+#       choices: @container:my_service.my_method
+#       choices: @in:research_field  (requires `pass` directive from including form ?)
+#       choices: @:research_field    (sort of global scope ?)
+#       choices: @closure:... ?
+#       choices: @options:key
+#       choices: @odm:my_...
+#
+
+
+
+######
+## APPLICATION FORM, version 1
+#
+application_form_v1:
+    # ^ overrides default.
+    #name: application_form:v1
+    #name: application_form_v1
+
+    #extends: form
+
+    extra:
+        narratives:
+            - "If you make modifications on this page and do not press the save button at the bottom of the page then your changes will not be saved. Pressing save does not submit your proposal. To submit your proposal, you must follow the link on the proposals summary page. After submission, you may make changes to your proposal. You will need to un-submit your proposal, make the necessary changes, save those changes and submit again your proposal. Please note that proposals not submitted will not be assessed. All information must be given in English."
+            - "Please note that mandatory fields are indicated by a red square (<redsqr>)."
+        #'guidelines_top': "Please don't forget to click the <strong>Save</strong> button."
+
+
+    # TODO: WIP
+    baking:
+        dbal:
+            #tablename: proposal_@content:proposal.call.id2
+            tablename: application_form_v1
+
+
+    parts:
+        proposal:
+            type: hidden
+            pass:
+                proposal_id: { as: option, key: data, default: "New!" }
+        #   type: entity_id
+        #   options: ??
+        #   references: @entity:Proposal.id
+
+
+        proposal_type:
+            type: proposal_access_type
+
+        is_continuation:
+            type: checkbox
+            label: "Continuation"
+            extra:
+                note: "<strong>Note:</strong> For proposals requesting access as continuation to previous access, it is mandatory to present the final report or a progress report at the time of the closure of the Call. This report should be sent to the Peer Review Team (peer-review@prace-ri.eu), and will be analysed by the peer-reviewers and the Access Committee to evaluate the status of on-going access. The template document for this report is available on the PRACE website (\"Information for PRACE Awardees\"), and it must be carefully respected."
+
+        continuation_of:
+            type: text
+            length: 16
+            label: "ID of the previous proposal"
+
+        start_date:
+            #type: date
+            type: text
+            options:
+                read_only: true
+            pass:
+                allocation_start_date: { as: option, key: data }
+
+        project_name: { type: textarea, label: "Project name" }
+
+        project_accronym:
+            type: text
+            required: false
+            label: "Project accronym"
+
+        research_field_1:
+           type: choice
+           options:
+              choices:
+                  A: "rf A"
+                  B: "rf B"
+              #choices: @CinesPeerReviewBundle:ResearchField
+              #choices: @:research_fields
+
+        research_field:
+            #type: research_field_v1
+            type: choice
+            #options:
+            #    choices: @:research_fields_list
+            pass:
+                research_fields: { as: option, key: choices }
+
+        research_fields_erc:
+            type: erc_research_field_pct
+            collection: true
+            #at_least: 3
+            #at_most:  3
+            #exactly: 3
+            pass: { erc_research_fields_list: ~ }
+
+        research_field_keyword:
+            type: textarea
+
+        contact:
+            type: simple_person
+            extra:
+                narratives:
+                    - "The project leader and the contact person will both receive all information."
+                    - "Please give your professional e-mail address. E-mail addresses such as Gmail and Hotmail are not accepted."
+
+        leader_employment_contract_valid:
+            type: checkbox
+            label: "The employment contract of the project leader with the research organisation must be valid at least 3 months after the end of the allocation period."
+            extra:
+                narratives:
+                    - "See other eligibility criteria on the Call announcement."
+
+        terms_conditions_approved:
+            type: checkbox
+            label: "I certify that I have read, understand, accept and comply with the terms and conditions of PRACE regular access - Call for proposals available at http://www.prace-ri.eu/Call-Announcements"
+
+        project_leader:
+            type: person_in_organisation
+            pass:
+                #nationalities: ~
+                nationalities: ~
+            #many: true
+            ## Implied "many" :
+            #at_least: 1
+            #at_most: 3
+        #collaborators:
+        #    type: person
+        ## OR ?
+
+#        collaborators:
+#            type: person_in_organisation
+#            pass:
+#                nationalities: ~
+#            collection: true
+
+        #computerSystems:
+        #    type: choice
+        #    multiple: true
+            # todo: How to populate the choice list?
+            # todo.. e.g. choice: { fromTable: <tablename> // fromDQL: "SELECT..."
+
+        #requested_hours:
+
+
+        summary:
+            type: textarea
+            length: ~
+            label: "Summary of the project"
+            extra:
+                narratives: "If the project is successful this will be published on the PRACE website unless you mark it as confidential below. Please make this summary understandable to a general audience. (500 words)"
+                word_limit: 500
+
+        bibliography:
+            type: textarea
+            length: ~
+            label: "Recent bibliographic references that are relevant to the project"
+
+        work_done_dev_codes:
+            type: textarea
+            length: ~
+            label: "Describe what work has already been done to develop the codes"
+            extra:
+                narratives:
+                    - "This should include the following: describing the main algorithms, how they have been implemented and parallelized, and their main performance bottlenecks and the solutions to the performance issues you have considered. For each code that needs to be optimized, please provide the details listed below."
+                    - [ "Name and version.", "Webpage and other references.", "Licensing model.", "Contact information of the code developers.", "Your relationship to the code (developer, collaborator to main developers, end user, etc.)." ]
+
+        computer_resources_requested:
+            #legend: "A legend that would override target type's provided legend text."
+            type: computer_resources_v1
+
+        dissemination:
+            type: textarea
+            label: "Discuss the routes that you will use for dissemination of the project and for any appropriate knowledge transfer. This should include any resources that you will be using to support this. (Maximum 500 words)"
+
+        confidentiality:
+            type: yesno
+            label: "Is any part of the project covered by confidentiality?"
+
+        confidentiality_reasons:
+            type: textarea
+            length: ~
+            label: "If YES, please specify which aspect is confidential and justify (Maximum 500 words) :"
+
+        proposed_reviewers:
+            type: simple_person_in_loose_organisation
+            collection: true
+            #exactly: 3
+            #at_most: three
+            #display: all_inline  ## todo: howto?
+        ## OR: proposedReviewer1, ...2, ...3 (auto-denormalization) ?
+            extra:
+                narratives:
+                    - "Please note that the reviewers you nominate should not be a member of your research group or a member of a group with whom you work on a regular basis. Preferably you should nominate at least one reviewer from outside your own country. PRACE will aim to use just one of these nominees to review your proposal but there is no guarantee that any of the nominees you indicate will be used."
+                    - "<strong>Please give the names, affiliations and e-mail addresses of the nominated reviewers.</strong>"
+
+        support_other:
+            type: textarea
+            label: "Do you have any other support for this application e.g. from your national funding council, the EC or international collaborations? Please give details of this below."
+
+    presentation:
+        template: @application_form_v1.html.twig
+        sections:
+            general_info:
+                heading: "General information"
+                parts:
+                    - projectName
+                    - projectAccronym
+            project_leader:
+                heading: "Project leader (personal data and contact)"
+                parts:
+                    - projectLeader
+
+##
+##
+## todo/idea: Reverse-engineered form spec. from table structure ?
+## One table:
+##
+#technical_review_form_1st_call:
+#    from: { table: technical_review_2010_02 }
+## Multiple tables:
+#application_form_2nd_call:
+#    from:
+#      - { table: proposal_2010_03 }
+#      - { table: proposal_content_2010_03 }
+#      - { table: proposal_resources_2010_03 }
+#      - { table: proposed_reviewers_2010_03 }
+
+

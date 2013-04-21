@@ -1,0 +1,3 @@
+fcj_dummy_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: FcjDummyBundle:Default:index }

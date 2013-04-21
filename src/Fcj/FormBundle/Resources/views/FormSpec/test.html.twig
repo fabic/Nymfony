@@ -1,0 +1,18 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}FcjFormBundle:FormSpec:test{% endblock %}
+
+{% block body %}
+<h1>Welcome at the FormSpec:test page</h1>
+
+    <form action="{{ path('test', { 'name': formSpecName, 'spec': subSpecName }) }}" method="post" {{ form_enctype(form) }}>
+
+        <center>
+            <button type="submit" class='save'>Save</button>
+        </center>
+
+        {{ form_widget(form) }}
+
+    </form>
+
+{% endblock %}

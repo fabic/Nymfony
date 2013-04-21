@@ -1,0 +1,28 @@
+#
+# @FcjFormBundle/Resources/config/services.yml
+#
+parameters:
+#    fcj_form.example.class: Fcj\FormBundle\Example
+    fcj_form.entity_manager: ~
+
+services:
+#    fcj_form.example:
+#        class: %fcj_form.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+
+    # todo: s/$/_factory
+    fcj_form:
+        class: Fcj\FormBundle\FormSpecFactory
+        arguments: [@form.factory, @form.registry, @doctrine.orm.entity_manager]
+        #arguments: [%fcj_form.entity_manager%]
+
+    fcj_form_extension:
+        class: Fcj\FormBundle\FcjExtension
+        arguments: [ @fcj_form ]
+        tags:
+            - { name: form.extension, alias: fcj } # FAIL: won't work this way (no such tag understood by the form component. : /
+
+#    fcj_dummy_type:
+#        class: Fcj\FormBundle\Form\DummyType
+#        tags:
+#            - { name: form.type }

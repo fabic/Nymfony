@@ -1,0 +1,7 @@
+parameters:
+#    fcj_dummy.example.class: Fcj\DummyBundle\Example
+
+services:
+#    fcj_dummy.example:
+#        class: %fcj_dummy.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

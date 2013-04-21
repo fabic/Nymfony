@@ -1,0 +1,15 @@
+#
+# formSpecs/baking.yml
+#
+
+person:
+    baker: dbal
+    #tablename: %
+    tablename: person
+
+
+application_form_v1:
+    baker: dbal
+    tablename: application_form_v1
+    #tablename: %
+    #tablename: %_@content:proposal.call.id

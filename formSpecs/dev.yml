@@ -1,0 +1,142 @@
+#
+# formSpecs/dev.yml
+#
+# todo: move dir. to src/Fcj/FormBundle/Resources/formSpecs/
+#
+# todo: Plurals for e.g. Second(s).
+# todo: versioning, e.g. my_form:1, my_form:2, my_form:3
+#
+
+# todo: « namespacing », e.g. my_form.my_sub_form ?
+# todo/OR:
+# todo: « contained definition » ? e.g.
+#    my_form:
+#        parts:
+#           thing:
+#              field1: { type: text }
+#              field2: { type: integer }
+#              field3: { type: my_other_form }
+
+# TODO: Baking definition, e.g.
+#   baking:
+#       dbal:
+#           my_form:
+#
+#
+
+yesno:
+    extends: choice
+    options:
+        choices:
+            yes: Yes
+            no:  No
+        expanded: true
+
+
+byte_unit:
+    extends: choice
+    options:
+       choices:
+           B:  Byte
+           KB: Kilo-byte
+           MB: Mega-byte
+           GB: Giga-byte
+           TB: Tera-byte
+           EB: Exa-bytes
+           ZB: Zetta-byte
+           YB: Yotta-byte
+
+byte_quantity:
+#    extends: integer  # Not possible, `integer` isn't a compound type.
+    embedded: true
+    parts:
+        %:      { type: integer }
+        %_unit: { type: byte_unit }
+#        %_unit:
+#            type: choice
+#            options:
+#               choices:
+#                   B:  Byte
+#                   KB: Kilo-byte
+#                   MB: Mega-byte
+#                   GB: Giga-byte
+#                   TB: Tera-byte
+
+time_unit:
+    extends: choice
+    options:
+        choices:
+            s: Second
+            m: Minute
+            H: Hour
+            D: Day
+            W: Week
+            M: Month
+            Y: Years
+
+time_quantity:
+    parts:
+        %:      { type: integer }
+        %_unit: { type: time_unit }
+
+
+gender:
+    extends: choice
+    options:
+        choices:
+            M: "Male"
+            F: "Female"
+
+nationality:
+    extends: country
+    options:
+        choices:
+            FR: French
+            DE: German
+            USA: American
+            Etc: Ecaetera
+
+contact:
+    parts:
+        email:       { type: email }
+        phoneNumber: { type: text, label: "Phone number" }
+        faxNumber:   { type: text, label: "Fax number", required: false }
+
+postalAddress:
+    parts:
+        street:     { type: textarea, length:255 }
+        building:   { type: text, length: 96 }
+        postalCode: { type: text, length: 64 }
+        city:       { type: text, length: 192 }
+        country:    { type: country }
+
+person:
+    parts:
+        gender:      { type: gender }
+        title:       { type: text, length: 16 }
+        firstname:   { type: text }
+        lastname:    { type: text }
+        dateOfBirth: { type: birthday, required: false, label: "Date of birth" }
+        nationality: { type: nationality }
+        contact:
+            type: contact
+            collection: true
+
+
+# % substitution by parent part name :
+test_byteQuantity:
+    parts:
+        field1: { type: byte_quantity, embedded: true }
+        field2: { type: byte_quantity, embedded: true }
+        field3: { type: byte_quantity }
+
+test_timeQuantity:
+    parts:
+        field1: { type: time_quantity, embedded: true }
+        field2: { type: time_quantity, embedded: true }
+        field3: { type: time_quantity }
+
+test_extend_integer:
+    extends: integer
+    options:
+        data: 123

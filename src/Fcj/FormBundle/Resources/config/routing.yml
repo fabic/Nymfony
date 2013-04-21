@@ -1,0 +1,8 @@
+# @FcjFormBundle/Resources/config/routing.yml
+
+#fcj_form:
+#    pattern:  /hello/{name}
+#    defaults: { _controller: FcjFormBundle:Default:index }
+
+fcj_form:
+    resource: "@FcjFormBundle/Controller/"

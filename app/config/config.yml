@@ -62,6 +62,8 @@ services:
 twig:
     debug:            %kernel.debug%
     strict_variables: %kernel.debug%
+    form:
+        resources: ['form_table_layout.html.twig']
 
 # Assetic Configuration
 assetic:
@@ -126,3 +128,13 @@ simple_things_entity_audit:
 #    audited_entities:
 #        - MyBundle\Entity\MyEntity
 #        - MyBundle\Entity\MyEntity2
+
+# JMSDiExtraBundle
+jms_di_extra:
+  locations:
+      bundles: [FcjFormBundle]
+
+# FcjFormBundle
+fcj_form:
+    # fixme: doesn't work..
+    entity_manager: @doctrine.orm.entity_manager
