@@ -52,7 +52,8 @@
     },
 
     "require-dev": {
-        "apigen/apigen": ">=2.8.0"
+        "apigen/apigen": ">=2.8.0",
+        "phpunit/phpunit": "3.7.*"
     },
 
     "repositories": [
