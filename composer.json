@@ -49,6 +49,11 @@
         "knplabs/knp-menu-bundle": "2.0.*@dev",
             "knplabs/knp-menu": "2.0.*@dev"
     },
+
+    "require-dev": {
+        "apigen/apigen": ">=2.8.0"
+    },
+
     "scripts": {
         "post-install-cmd": [
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
