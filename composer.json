@@ -1,5 +1,5 @@
 {
-    "name": "Nymfony : fabic Symfony's playground",
+    "name": "fabic/symfony-playground",
     "description": "Based on the \"Symfony Standard Edition\" distribution",
     "homepage": "http://RandomBinaryThoughts.com/",
     "keywords": [ "Symfony", "Bundles", "playground" ],
