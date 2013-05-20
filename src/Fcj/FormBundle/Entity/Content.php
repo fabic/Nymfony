@@ -68,7 +68,7 @@ class Content
      * @param FormSpec $formSpec
      * @param Content $parent
      */
-    public function __construct(FormSpec $spec, FormSpecPart $part=NULL, Content $parent=NULL)
+    public function __construct(FormSpec $spec = null, FormSpecPart $part=NULL, Content $parent=NULL)
     {
         $this->spec   = $spec;
         $this->part   = $part;

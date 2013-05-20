@@ -53,7 +53,7 @@ class ContentType extends AbstractType
      *
      * todo/? : Keep track of full traversal path ?
      */
-    public function __construct(FormSpec $spec, FormSpecPart $part=null)
+    public function __construct(FormSpec $spec=null, FormSpecPart $part=null)
     {
         $this->spec = $spec;
         $this->part = $part;
@@ -78,7 +78,7 @@ class ContentType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $formSpec = $this->spec;
+        $formSpec = $this->spec ?: $options['formSpec'];
 
         $drops = $options['drops'];
         //if(! empty($drops))
@@ -192,6 +192,7 @@ class ContentType extends AbstractType
             array(
                 'data_class' => $this->dataClass, // fixme(temp): 'Fcj\FormBundle\Entity\Content' ?
                 //'data_class' => 'Fcj\FormBundle\Entity\Content',
+                'formSpec'   => $this->spec ?: null,
                 'drops'      => array(),
                 'extra'      => array()
             ),
@@ -204,7 +205,7 @@ class ContentType extends AbstractType
      */
     public function getParent()
     {
-        $extends = $this->spec->getExtends();
+        $extends = $this->spec ? $this->spec->getExtends() : null;
         $extends = $extends ?: parent::getParent();
         return $extends;
     }
@@ -214,7 +215,7 @@ class ContentType extends AbstractType
      */
     public function getName()
     {
-        $name = $this->spec->getName(); // : 'fcj_formbundle_contenttype';
+        $name = $this->spec ? $this->spec->getName() : 'fcj_formbundle_contenttype';
         return $name;
     }
 }

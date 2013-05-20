@@ -20,7 +20,6 @@ number2decimals:
         precision: 2
         grouping: true
 
-
 gender:
     extends: choice
     options:
@@ -201,6 +200,7 @@ proposal_access_type:
 
 job_size_cores_memory:
     embedded: true
+    template: 'CinesPeerReviewBundle:job_size_cores_memory.html.twig'
     parts:
         core_hours_min:  { type: integer }
         core_hours_avg:  { type: integer }

@@ -184,7 +184,8 @@ class FormSpecFactory
     {
         $spec = $this->getFormSpec($specName);
         $ct = new ContentType($spec);
-        $options['drops'] = $drops;
+        $options['formSpec'] = $spec;
+        $options['drops']    = $drops;
         $builder = $this->formFactory->createNamedBuilder($name, $ct, $data, $options);
         return $builder;
     }

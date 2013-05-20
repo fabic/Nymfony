@@ -28,10 +28,17 @@ yesno:
     extends: choice
     options:
         choices:
-            yes: Yes
-            no:  No
+            Y: Yes
+            N:  No
         expanded: true
 
+yesnonil:
+    extends: yesno
+    options:
+        choices:
+            Y: Yes
+            N: No
+            ?: Nil
 
 byte_unit:
     extends: choice
