@@ -5,6 +5,7 @@ imports:
     - { resource: fos_rest.yml }
     - { resource: knp_menu.yml }
     - { resource: knp_paginator.yml }
+    - { resource: mopa_bootstrap.yml }
 
 framework:
     #esi:             ~
@@ -34,7 +35,7 @@ twig:
 assetic:
     debug:          %kernel.debug%
     use_controller: false
-    bundles:        [ ]
+    bundles:        [ 'MopaBootstrapBundle' ]
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
