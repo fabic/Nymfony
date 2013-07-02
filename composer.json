@@ -50,7 +50,8 @@
             "knplabs/knp-menu": "2.0.*@dev",
         "jquery/jquery": ">=1.9.1",
 
-        "knplabs/knp-paginator-bundle": "dev-master"
+        "knplabs/knp-paginator-bundle": "dev-master",
+        "craue/formflow-bundle": "dev-master"
     },
 
     "require-dev": {
