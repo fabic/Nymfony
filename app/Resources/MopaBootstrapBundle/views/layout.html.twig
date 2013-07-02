@@ -1,0 +1,13 @@
+{# File: app/Resources/MopaBootstrapBundle/views/layout.html.twig
+ #
+ # @see https://github.com/phiamo/MopaBootstrapBundle/blob/master/Resources/doc/2-base-templates.md
+ #}
+{% extends 'MopaBootstrapBundle::base.html.twig' %}
+
+{% block title %}Nymfony : A symfony playground{% endblock %}
+{% block headline %}Nymfony{% endblock %}
+{% block content_content %}This is {{ _self }}{% endblock %}
+
+{% block footer %}
+    © <a href='http://RandomBinaryThoughts.com/' target='_blank'>fcj</a> &ndash; 2013
+{% endblock %}
