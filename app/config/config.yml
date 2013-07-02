@@ -4,6 +4,7 @@ imports:
     - { resource: jms_serializer.yml }
     - { resource: fos_rest.yml }
     - { resource: knp_menu.yml }
+    - { resource: knp_paginator.yml }
 
 framework:
     #esi:             ~
