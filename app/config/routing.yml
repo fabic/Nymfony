@@ -1,3 +1,8 @@
+fcj_mouvs:
+    resource: "@FcjMouvsBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 
 # FOSJsRoutingBundle
 # See https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/blob/master/Resources/doc/README.markdown

@@ -1,0 +1,56 @@
+{# File: src/Fcj/MouvsBundle/Resources/views/Default/index.html.twig
+ #}
+{% extends 'MopaBootstrapBundle::layout.html.twig' %}
+
+
+{% macro humanSize(bytes) %}
+    {% set units = {'GB': 9, 'MB': 6, 'KB': 3, 'B': 0} %}
+    {% set unit = '' %}
+    {% for u, pow in units if unit == '' %}
+        {% if bytes >= 10**pow %}
+            {% set bytes = bytes / 10**pow %}
+            {% set unit = u %}
+        {% endif %}
+    {% endfor %}
+    {% set bytes = ((bytes*1000) // 10) / 100 %}
+    {% if unit == 'GB' %}<b>{% endif %}
+    {{ bytes }}&nbsp;{{ unit }}
+    {% if unit == 'GB' %}</b>{% endif %}
+{% endmacro %}
+
+{% import _self as m %}
+
+{% set totalSize = 0 %}
+
+{% block content_content %}
+    <table class='table table-striped table-condensed'>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>File</th>
+            <th class='text-right'>Size</th>
+            <th>Path</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for f in finder %}
+            {% set size = f.file ? f.size : 0 %}
+            {% set totalSize = totalSize + size %}
+            <tr>
+                <th>{{ loop.index }}</th>
+                <td>{{ f.filename }}</td>
+                <td class='text-right'>{{ m.humanSize(size) }}</td>
+                <td>{{ f.pathname }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr class='info'>
+            <td></td>
+            <td></td>
+            <td>{{ m.humanSize(totalSize) }}</td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+{% endblock %}

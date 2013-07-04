@@ -36,6 +36,8 @@ class AppKernel extends Kernel
             new Craue\FormFlowBundle\CraueFormFlowBundle(),
 
             new Mopa\Bundle\BootstrapBundle\MopaBootstrapBundle(),
+
+            new Fcj\MouvsBundle\FcjMouvsBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

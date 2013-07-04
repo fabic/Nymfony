@@ -1,0 +1,9 @@
+# File: src/Fcj/MouvsBundle/Resources/config/services.yml
+
+parameters:
+
+services:
+    mouvs:
+        class: Fcj\MouvsBundle\MouvsService
+        arguments:
+            - @doctrine.orm.entity_manager

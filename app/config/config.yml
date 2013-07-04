@@ -7,6 +7,7 @@ imports:
     - { resource: knp_menu.yml }
     - { resource: knp_paginator.yml }
     - { resource: mopa_bootstrap.yml }
+    - { resource: @FcjMouvsBundle/Resources/config/services.yml }
 
 framework:
     #esi:             ~
@@ -67,7 +68,7 @@ twig:
 assetic:
     debug:          %kernel.debug%
     use_controller: false
-    bundles:        [ 'MopaBootstrapBundle' ]
+    bundles:        [ 'MopaBootstrapBundle', 'FcjMouvsBundle' ]
     #java: /usr/bin/java
     filters:
         cssrewrite: ~

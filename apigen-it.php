@@ -10,6 +10,7 @@
  *
  * TODO: Pass additional command line arguments ($argv[]) to bin/apigen.php
  * TODO.. Or have this script be parameteriz-able and pass arguments after e.g. '--' to ApiGen.
+ * TODO: phpuml -o doc/phpuml-ed/ -f htmlnew -n Nymfony -i .svn -i .git src/ ...
  */
 
 $here = realpath(__DIR__);
