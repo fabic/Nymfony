@@ -5,7 +5,6 @@ namespace Fcj\MouvsBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -44,9 +43,10 @@ class FileSource
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="File", mappedBy="source"),
-     *    orphanRemoval="true", cascade={"all"}
+     *    orphanRemoval="true", cascade={"all"},
+     *    indexBy="inode"
      * )
-     * todo: indexBy = "hash"
+     * todo: indexBy = "hash" ? or "inode" ?
      */
     protected $files;
 
@@ -95,15 +95,26 @@ class FileSource
     }
 
     /**
-     * Set files
      *
-     * @param integer $files
+     * @param File $file
+     * @throws \InvalidArgumentException
      * @return FileSource
      */
-    public function setFiles($files)
+    public function addFile(File $file)
     {
-        $this->files = $files;
-    
+        $inode = $file->getInode();
+        if ($inode && $this->files->containsKey($inode)) {
+            error_log("INFO: " .__METHOD__. ": Inode $inode is already baked.");
+            /** @var File $baked */
+            $baked = $this->files->get($inode);
+            $baked->copyFrom($file);
+        }
+        else if ($inode) { // fixme !
+            $file->setSource($this);
+            $this->files->set($inode, $file);
+        }
+        else // fixme: yes? no?
+            throw new \InvalidArgumentException(__METHOD__ . ": ERROR: File has *NO* inode!!");
         return $this;
     }
 
@@ -117,18 +128,4 @@ class FileSource
         return $this->files;
     }
 
-    public function sync()
-    {
-        $finder = Finder::create()
-            ->in($this->path)
-            ->followLinks()
-            ->files()
-            ->sortByName();
-
-        /** @var SplFileInfo $file */
-        foreach($finder AS $file)
-        {
-            error_log("{$file->getFilename()} ({$file->getInode()})");
-        }
-    }
 }

@@ -11,7 +11,7 @@ use Symfony\Component\Finder\SplFileInfo;
  * @ORM\Table()
  * @ORM\Entity
  */
-class File extends SplFileInfo
+class File //extends SplFileInfo
 {
     /**
      * @var integer
@@ -28,6 +28,13 @@ class File extends SplFileInfo
      * @ORM\ManyToOne(targetEntity="FileSource", inversedBy="files")
      */
     protected $source;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer")
+     */
+    protected $inode;
 
     /**
      * @var string
@@ -50,6 +57,41 @@ class File extends SplFileInfo
     protected $path;
 
 
+    public function __construct (SplFileInfo $file, FileSource $source=null)
+    {
+        //parent::__construct($file);
+        //parent::setInfoClass(get_class());
+        $this->source = $source;
+        $this->copyFrom($file);
+    }
+
+    /** Sort of a copy constructor.
+     *
+     * @param SplFileInfo $file
+     * @return $this
+     */
+    public function copyFrom (File $file)
+    {
+        $this->name = $file->getFilename();
+        $this->path = $file->getRelativePath();
+        // Fixme?
+        try {
+            $this->inode = $file->getInode();
+        }
+        catch(\RuntimeException $ex)
+        {
+            error_log(__METHOD__ . ": ERROR: Caught exception!: " . $ex->getMessage());
+        }
+        return $this;
+    }
+
+    /// inherited. todo: is it ok?
+    public function getRelativePathname()
+    {
+        return $this->path . DIRECTORY_SEPARATOR . $this->name;
+    }
+
+
     /**
      * Get id
      *
@@ -59,6 +101,40 @@ class File extends SplFileInfo
     {
         return $this->id;
     }
+
+    /**
+     * @param FileSource $source
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @return FileSource
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param int $inode
+     */
+    public function setInode($inode)
+    {
+        $this->inode = $inode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getInode()
+    {
+        return $this->inode;
+    }
+
+
 
     /**
      * Set name

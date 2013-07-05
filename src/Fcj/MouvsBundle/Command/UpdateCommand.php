@@ -52,6 +52,7 @@ EOF
 
         $container = $this->getContainer();
 
+        /** @var \Fcj\MouvsBundle\MouvsService $mouvs */
         $mouvs = $container->get('mouvs');
 
         /** @var Collection $sources */
@@ -61,6 +62,7 @@ EOF
         foreach($sources AS $fs)
         {
             $output->writeln("=== Source {$fs->getId()}: {$fs->getPath()}");
+            $mouvs->sync($fs);
         }
 
         //$em->flush();
