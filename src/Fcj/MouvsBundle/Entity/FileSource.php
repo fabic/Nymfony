@@ -42,8 +42,8 @@ class FileSource
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="File", mappedBy="source"),
-     *    orphanRemoval="true", cascade={"all"},
+     * @ORM\OneToMany(targetEntity="File", mappedBy="source",
+     *    orphanRemoval=true, cascade={"all"},
      *    indexBy="inode"
      * )
      * todo: indexBy = "hash" ? or "inode" ?
@@ -107,9 +107,24 @@ class FileSource
             error_log("INFO: " .__METHOD__. ": Inode $inode is already baked.");
             /** @var File $baked */
             $baked = $this->files->get($inode);
-            $baked->copyFrom($file);
+            //$baked->setLastUpdate();
+            if ($baked->getCTime() != $file->getCTime())
+            {
+                $baked->setName($file->getName());
+                $baked->setPath($file->getPath());
+                $baked->setCTime($file->getCTime());
+                $baked->setLastUpdate();
+            }
+            if ($baked->getMTime() != $file->getMTime())
+            {
+                $baked->setSize($file->getSize());
+                $baked->setHash(null);
+                $baked->setMTime($file->getMTime());
+                $baked->setLastUpdate();
+            }
         }
         else if ($inode) { // fixme !
+            error_log("INFO: " .__METHOD__. ": Inode $inode NEW!!! ({$file->getName()}).");
             $file->setSource($this);
             $this->files->set($inode, $file);
         }

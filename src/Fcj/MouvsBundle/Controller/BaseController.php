@@ -15,4 +15,11 @@ use FOS\RestBundle\Controller\FOSRestController;
 class BaseController extends FOSRestController
 {
 
+    /**
+     * @return \Fcj\MouvsBundle\MouvsService
+     */
+    public function mouvs()
+    {
+        return $this->get('mouvs');
+    }
 }

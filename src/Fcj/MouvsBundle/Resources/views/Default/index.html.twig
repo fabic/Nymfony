@@ -33,15 +33,17 @@
         </tr>
         </thead>
         <tbody>
-        {% for f in finder %}
-            {% set size = f.file ? f.size : 0 %}
-            {% set totalSize = totalSize + size %}
-            <tr>
-                <th>{{ loop.index }}</th>
-                <td>{{ f.filename }}</td>
-                <td class='text-right'>{{ m.humanSize(size) }}</td>
-                <td>{{ f.pathname }}</td>
-            </tr>
+        {% for fileSource in sources %}
+            {% for f in fileSource.files %}
+                {% set size = f.size %}
+                {% set totalSize = totalSize + size %}
+                <tr>
+                    <th>{{ loop.index }}</th>
+                    <td>{{ f.name }}</td>
+                    <td class='text-right'>{{ m.humanSize(size) }}</td>
+                    <td>{{ f.path }}</td>
+                </tr>
+            {% endfor %}
         {% endfor %}
         </tbody>
         <tfoot>

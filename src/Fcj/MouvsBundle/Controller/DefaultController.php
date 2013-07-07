@@ -15,8 +15,9 @@ class DefaultController extends BaseController
      */
     public function indexAction()
     {
-        $mouvs = $this->get('mouvs');
+        $mouvs = $this->mouvs();
 
+        /*
         //$there = "/home/cadet/mouvs/";
         $there = "../src/";
 
@@ -28,5 +29,10 @@ class DefaultController extends BaseController
             ->sortByName();
 
         return array('finder' => $finder);
+        */
+        $sources = $mouvs->fileSources();
+        return array(
+            'sources' => $sources
+        );
     }
 }

@@ -9,8 +9,8 @@
 
 namespace Fcj\MouvsBundle;
 
-
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -37,20 +37,30 @@ class MouvsService
     public function sync(FileSource $fileSource)
     {
         error_log(__METHOD__ . ": There we are!");
+
         $em = $this->em;
+
         $finder = Finder::create()
             ->in($fileSource->getPath())
             ->followLinks()
             ->files()
             ->sortByName();
 
+        $i = 0;
+
+        /** @var Collection $dbFiles */
+        $dbFiles = $fileSource->getFiles();
+        print_r ($dbFiles->getKeys());
+
         /** @var SplFileInfo $file */
         foreach($finder AS $file)
         {
+            $i ++;
             try {
-                error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
+                //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
+                error_log("$i");
                 $f = new File($file);
-                $em->persist($f);
+                //$em->persist($f);
                 $fileSource->addFile($f);
             }
             catch(\RuntimeException $ex)

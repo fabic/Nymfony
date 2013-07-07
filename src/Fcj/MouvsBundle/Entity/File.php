@@ -25,16 +25,45 @@ class File //extends SplFileInfo
     /**
      * @var FileSource
      *
-     * @ORM\ManyToOne(targetEntity="FileSource", inversedBy="files")
+     * @ORM\ManyToOne(targetEntity="FileSource",
+     *     inversedBy="files")
      */
     protected $source;
 
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $lastUpdate;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer", unique=true)
      */
     protected $inode;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer")
+     */
+    protected $ctime;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer")
+     */
+    protected $mtime;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer")
+     */
+    protected $size;
 
     /**
      * @var string
@@ -70,13 +99,17 @@ class File //extends SplFileInfo
      * @param SplFileInfo $file
      * @return $this
      */
-    public function copyFrom (File $file)
+    public function copyFrom (SplFileInfo $file)
     {
+        //$this->setLastUpdate();
         $this->name = $file->getFilename();
         $this->path = $file->getRelativePath();
         // Fixme?
         try {
+            $this->size = $file->getSize();
             $this->inode = $file->getInode();
+            $this->ctime = $file->getCTime();
+            $this->mtime = $file->getMTime();
         }
         catch(\RuntimeException $ex)
         {
@@ -119,6 +152,23 @@ class File //extends SplFileInfo
     }
 
     /**
+     * @param int $lastUpdate
+     */
+    public function setLastUpdate($lastUpdate=null)
+    {
+        $this->lastUpdate = $lastUpdate===null ? time() : $lastUpdate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastUpdate()
+    {
+        return $this->lastUpdate;
+    }
+
+
+    /**
      * @param int $inode
      */
     public function setInode($inode)
@@ -134,7 +184,69 @@ class File //extends SplFileInfo
         return $this->inode;
     }
 
+    /**
+     * @param int $ctime
+     */
+    public function setCTime($ctime)
+    {
+        $this->ctime = $ctime;
+    }
 
+    /**
+     * @return int
+     */
+    public function getCTime()
+    {
+        return $this->ctime;
+    }
+
+    /**
+     * @param int $mtime
+     */
+    public function setMTime($mtime)
+    {
+        $this->mtime = $mtime;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMTime()
+    {
+        return $this->mtime;
+    }
+
+    /**
+     * @param int $size
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @param string|null $hash
+     */
+    public function setHash($hash)
+    {
+        $this->hash = $hash;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
 
     /**
      * Set name
@@ -180,5 +292,10 @@ class File //extends SplFileInfo
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function __toString()
+    {
+        return "{$this->name} ({$this->inode})";
     }
 }
