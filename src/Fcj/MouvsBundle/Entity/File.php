@@ -35,6 +35,13 @@ class File //extends SplFileInfo
      *
      * @ORM\Column(type="integer", nullable=true)
      */
+    protected $addedOn;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     */
     protected $lastUpdate;
 
     /**
@@ -149,6 +156,22 @@ class File //extends SplFileInfo
     public function getSource()
     {
         return $this->source;
+    }
+
+    /**
+     * @param int $addedOn
+     */
+    public function setAddedOn($addedOn=null)
+    {
+        $this->addedOn = $addedOn===null ? time() : $addedOn;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAddedOn()
+    {
+        return $this->addedOn;
     }
 
     /**

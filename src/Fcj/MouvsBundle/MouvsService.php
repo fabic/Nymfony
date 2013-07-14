@@ -19,14 +19,23 @@ use Fcj\MouvsBundle\Entity\File;
 
 class MouvsService
 {
-
+    /**
+     * @var EntityManager
+     */
     protected $em;
 
+    /** Tha constructor, DI injection magic happens here.
+     *
+     * @param EntityManager $em
+     */
     public function __construct (EntityManager $em)
     {
         $this->em = $em;
     }
 
+    /**
+     * @return Collection of FileSource.
+     */
     public function fileSources()
     {
         $sources = $this->em->getRepository('FcjMouvsBundle:FileSource')
@@ -34,41 +43,31 @@ class MouvsService
         return $sources;
     }
 
+    /**
+     * @param FileSource $fileSource
+     * @return Collection of File instances.
+     */
     public function sync(FileSource $fileSource)
     {
         error_log(__METHOD__ . ": There we are!");
 
         $em = $this->em;
+        $files = $fileSource->sync();
 
-        $finder = Finder::create()
-            ->in($fileSource->getPath())
-            ->followLinks()
-            ->files()
-            ->sortByName();
-
-        $i = 0;
-
-        /** @var Collection $dbFiles */
-        $dbFiles = $fileSource->getFiles();
-        print_r ($dbFiles->getKeys());
-
-        /** @var SplFileInfo $file */
-        foreach($finder AS $file)
-        {
-            $i ++;
-            try {
-                //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
-                error_log("$i");
-                $f = new File($file);
-                //$em->persist($f);
-                $fileSource->addFile($f);
-            }
-            catch(\RuntimeException $ex)
-            {
-                error_log(__METHOD__ . ": ERROR: Caught exception!: " . $ex->getMessage());
-            }
-        }
+        error_log(__METHOD__ . ": FLUSH TO DATABASE !!");
         $em->flush();
+
+        return $files;
+    }
+
+    // todo: SyncAllSources() ?
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    public function filesRep()
+    {
+        return $this->em->getRepository('FcjMouvsBundle:File');
     }
 
 }

@@ -3,10 +3,8 @@
  */
 namespace Fcj\MouvsBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ORM\EntityManager;
 
 use Fcj\MouvsBundle\Entity\FileSource;
 use Doctrine\Common\Collections\Collection;
@@ -16,7 +14,7 @@ use Doctrine\Common\Collections\Collection;
  *
  * @author Fabien Cadet <cadet.fabien@gmail.com>
  */
-class UpdateCommand extends ContainerAwareCommand
+class UpdateCommand extends BaseMouvsCommand
 {
     /**
      * @see Command
@@ -48,27 +46,19 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        //$path = $input->getArgument('file');
+        $mouvs = $this->mouvs();
 
-        $container = $this->getContainer();
-
-        /** @var \Fcj\MouvsBundle\MouvsService $mouvs */
-        $mouvs = $container->get('mouvs');
-
-        /** @var Collection $sources */
         $sources = $mouvs->fileSources();
 
         /** @var FileSource $fs */
         foreach($sources AS $fs)
         {
             $output->writeln("=== Source {$fs->getId()}: {$fs->getPath()}");
-            $mouvs->sync($fs);
+            $files = $mouvs->sync($fs);
+            //print_r ($files->getKeys());
         }
 
-        //$em->flush();
         $output->writeln('Yeaaaah man!');
     }
-
-
 
 }
