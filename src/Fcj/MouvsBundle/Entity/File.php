@@ -2,6 +2,7 @@
 
 namespace Fcj\MouvsBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -10,6 +11,11 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @ORM\Table()
  * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorMap({
+ *     "file" = "File",
+ *     "dir"  = "Directory"
+ * })
  */
 class File //extends SplFileInfo
 {
@@ -29,6 +35,22 @@ class File //extends SplFileInfo
      *     inversedBy="files")
      */
     protected $source;
+
+    /**
+     * @var File
+     *
+     * @ORM\ManyToOne(targetEntity="File",
+     *     inversedBy="children")
+     */
+    protected $parent;
+
+    /**
+     * @var File
+     *
+     * @ORM\OneToMany(targetEntity="File",
+     *     mappedBy="parent")
+     */
+    protected $children;
 
     /**
      * @var integer
@@ -88,7 +110,8 @@ class File //extends SplFileInfo
     /**
      * @var string
      *
-     * @ORM\Column(type="text", nullable=true)
+     * @ ORM\Column(type="text", nullable=true)
+     * todo: remove that...
      */
     protected $path;
 
@@ -98,6 +121,7 @@ class File //extends SplFileInfo
         //parent::__construct($file);
         //parent::setInfoClass(get_class());
         $this->source = $source;
+        $this->children = new ArrayCollection();
         $this->copyFrom($file);
     }
 

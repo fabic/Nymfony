@@ -11,16 +11,36 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * FileSource
  *
- * todo: abstract? w/ impl. such as:
- *    FileSystemSource
+ * TODO: abstract? w/ impl. such as:
+ *
+ *    FileSystemSource === FileSource (currently)
  *        UserDirSource (i.e. ~dude/)
+ *
  *    RemoteSource (with e.g. caching/latency mecanisms?)
- *       SshSource, FtpSource, WebDavSource
+ *       SshSource, FtpSource, WebDavSource, SmbSource,
  *
+ *    Online storages:
+ *       Dropbox, flickr, Google Drive, etc...
  *
+ *    Special cases :
+ *       GitSource!! with ability to browse specific trees!
+ *       SvnSource
+ *       RsyncSource?! (see librsync + php-rsync extension).
+ *
+ *    Other cases:
+ *       Youtube playlists, Vimeo and the like.
  *
  * @ORM\Table()
  * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorMap({
+ *     "local" = "FileSource",
+ *     "ssh"   = "SshSource"
+ * })
+ *
+ * todo/?: Have it impl. IteratorAggregate & Countable ?
+ * todo/?: Symfony's Finder component : Extend it? and/or write adapters for each source?
+ *    e.g. getFinder().
  */
 class FileSource
 {
@@ -37,8 +57,22 @@ class FileSource
      * @var string
      *
      * @ORM\Column(type="text")
+     *
+     * todo/?: Have it be an array of "remote" paths that shall be indexed.
      */
     protected $path;
+
+    /**
+     * @var boolean True if this source is *actually* a remote repository of files,
+     *    such as for locally mounted filesystems (e.g. sshfs, NFS).
+     *
+     * @ORM\Column(type="boolean")
+     *
+     * todo: $latency? $bandwidth? e.g. for keeping track of typical data transfer rates,
+     *    and eventually having a means to determine if a given file might be cached locally
+     *    when requested...
+     */
+    protected $remote;
 
     /**
      * @var ArrayCollection
@@ -187,4 +221,5 @@ class FileSource
         return $this->files;
     }
 
+    // todo: getRemoteFiles()
 }
