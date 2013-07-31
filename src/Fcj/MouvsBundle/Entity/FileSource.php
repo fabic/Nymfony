@@ -3,6 +3,7 @@
 namespace Fcj\MouvsBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Finder\Finder;
@@ -41,6 +42,7 @@ use Symfony\Component\Finder\SplFileInfo;
  * todo/?: Have it impl. IteratorAggregate & Countable ?
  * todo/?: Symfony's Finder component : Extend it? and/or write adapters for each source?
  *    e.g. getFinder().
+ * todo/?: Have it be-a File ? and abstract.
  */
 class FileSource
 {
@@ -88,6 +90,16 @@ class FileSource
     // todo: $owner? here?
     // todo: $visibility := IN private (to user), public (anyone) ?
 
+    /** Separate structure for storing dirs, Yes/No?
+     *
+     * @var ArrayCollection
+     *
+     * @ ORM\OneToMany(targetEntity="Directory", mappedBy="source",
+     *    orphanRemoval=true, cascade={"all"},
+     *    indexBy="inode"
+     */
+    protected $directories;
+
     /**
      *
      */
@@ -129,21 +141,40 @@ class FileSource
         return $this->path;
     }
 
+    /**
+     * @param boolean $remote
+     */
+    public function setRemote($remote)
+    {
+        $this->remote = $remote;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getRemote()
+    {
+        return $this->remote;
+    }
+
     /** (Re-)Synchronize DB versus on-disk files.
+     * Fixme: rephrase ^ : we really would like to be db oblivious when possible.
+     *
+     * @param \Doctrine\ORM\EntityManager $em Yes? No?
      *
      * @return ArrayCollection of File instances, some already baked,
      *    others not in case of newly discovered files.
      */
-    public function sync()
+    public function sync(EntityManager $em)
     {
+        // todo: Have a custom impl. where *we* do browse
+        // dirs ourselves so as to determine if something
+        // has changed (dir. mtime).
         $finder = Finder::create()
             ->in($this->path)
             ->followLinks()
-            ->files()
+            //->files()
             ->sortByName();
-
-        //$dbFiles = $fileSource->getFiles();
-        //print_r ($dbFiles->getKeys());
 
         $i = 0;
         $files = new ArrayCollection();
@@ -155,8 +186,9 @@ class FileSource
             try {
                 //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
                 //error_log("$i");
-                $f = new File($file);
-                $g = $this->addFile($f);
+                //$f = new File($file);
+                $f = $this->newFile($file);
+                $g = $this->addFile($f, $file->getRelativePath());
                 $files[$g->getInode()] = $g;
             }
             catch(\RuntimeException $ex)
@@ -169,36 +201,57 @@ class FileSource
     }
 
     /**
-     *
-     * @param File $file
-     * @throws \InvalidArgumentException
+     * @param \SplFileInfo $sfi
      * @return File
      */
-    public function addFile(File $file)
+    public function newFile(\SplFileInfo $sfi)
+    {
+        if ($sfi->isDir()) {
+            $dir = new Directory($sfi, $this);
+            return $dir;
+        }
+        // todo: else if ($sfi->isLink()) ???
+        else {
+            $file = new File($sfi, $this);
+            return $file;
+        }
+    }
+
+    /**
+     *
+     * @param File $file
+     * @param string $path
+     * @throws \InvalidArgumentException
+     * @return File The actual indexed File instance for $file.
+     */
+    public function addFile(File $file, $path)
     {
         $inode = $file->getInode();
-        if ($inode && $this->files->containsKey($inode)) {
+        if (!$inode)
+            throw new \InvalidArgumentException(__METHOD__ . ": ERROR: File has *NO* inode!!");
+
+        $parent = $this->lookupDirectoryByPath($path);
+        if ($this->files->containsKey($inode)) {
             //error_log("INFO: " .__METHOD__. ": Inode $inode is already baked.");
             error_log("U\t$inode\t{$file->getName()}");
             /** @var File $baked */
             $baked = $this->files->get($inode);
-            if ($baked->getCTime() != $file->getCTime())
-            {
+            // CTime : Update if Inode has changed.
+            if ($baked->getCTime() != $file->getCTime()) {
                 $baked->setName($file->getName());
-                $baked->setPath($file->getPath());
+                //$baked->setPath($file->getPath());
                 $baked->setCTime($file->getCTime());
                 $baked->setLastUpdate();
             }
-            if ($baked->getMTime() != $file->getMTime())
-            {
+            // MTime : Update if file content has changed.
+            if ($baked->getMTime() != $file->getMTime()) {
                 $baked->setSize($file->getSize());
-                $baked->setHash(null);
+                $baked->setHash(null); // Reset the hash.
                 $baked->setMTime($file->getMTime());
                 $baked->setLastUpdate();
             }
             return $baked;
-        }
-        else if ($inode) { // fixme !?
+        } else { // fixme !?
             //error_log("INFO: " .__METHOD__. ": Inode $inode NEW!!! ({$file->getName()}).");
             error_log("A\t$inode\t{$file->getName()}");
             $file->setSource($this);
@@ -206,8 +259,6 @@ class FileSource
             $this->files->set($inode, $file);
             return $file;
         }
-        else // fixme: yes? no?
-            throw new \InvalidArgumentException(__METHOD__ . ": ERROR: File has *NO* inode!!");
     }
 
     /**

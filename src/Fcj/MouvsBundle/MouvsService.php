@@ -54,8 +54,8 @@ class MouvsService
         $em = $this->em;
         $files = $fileSource->sync();
 
-        error_log(__METHOD__ . ": FLUSH TO DATABASE !!");
-        $em->flush();
+        //error_log(__METHOD__ . ": FLUSH TO DATABASE !!");
+        //$em->flush();
 
         return $files;
     }

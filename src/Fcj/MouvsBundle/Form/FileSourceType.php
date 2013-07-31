@@ -12,6 +12,7 @@ class FileSourceType extends AbstractType
     {
         $builder
             ->add('path')
+            ->add('remote')
         ;
     }
 

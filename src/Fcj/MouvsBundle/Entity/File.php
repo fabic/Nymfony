@@ -16,6 +16,8 @@ use Symfony\Component\Finder\SplFileInfo;
  *     "file" = "File",
  *     "dir"  = "Directory"
  * })
+ *
+ * TODO: xattr : Read extended attributes?
  */
 class File //extends SplFileInfo
 {
@@ -45,17 +47,10 @@ class File //extends SplFileInfo
     protected $parent;
 
     /**
-     * @var File
-     *
-     * @ORM\OneToMany(targetEntity="File",
-     *     mappedBy="parent")
-     */
-    protected $children;
-
-    /**
      * @var integer
      *
      * @ORM\Column(type="integer", nullable=true)
+     * todo: rename it to indexedOn.
      */
     protected $addedOn;
 
@@ -107,21 +102,12 @@ class File //extends SplFileInfo
      */
     protected $name;
 
-    /**
-     * @var string
-     *
-     * @ ORM\Column(type="text", nullable=true)
-     * todo: remove that...
-     */
-    protected $path;
-
 
     public function __construct (SplFileInfo $file, FileSource $source=null)
     {
         //parent::__construct($file);
         //parent::setInfoClass(get_class());
         $this->source = $source;
-        $this->children = new ArrayCollection();
         $this->copyFrom($file);
     }
 
@@ -134,7 +120,6 @@ class File //extends SplFileInfo
     {
         //$this->setLastUpdate();
         $this->name = $file->getFilename();
-        $this->path = $file->getRelativePath();
         // Fixme?
         try {
             $this->size = $file->getSize();
@@ -152,7 +137,10 @@ class File //extends SplFileInfo
     /// inherited. todo: is it ok?
     public function getRelativePathname()
     {
-        return $this->path . DIRECTORY_SEPARATOR . $this->name;
+        //return $this->path . DIRECTORY_SEPARATOR . $this->name;
+        return $this->parent->getRelativePathname()
+            . DIRECTORY_SEPARATOR
+            . $this->name;
     }
 
 
@@ -316,29 +304,6 @@ class File //extends SplFileInfo
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set path
-     *
-     * @param string $path
-     * @return File
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-    
-        return $this;
-    }
-
-    /**
-     * Get path
-     *
-     * @return string 
-     */
-    public function getPath()
-    {
-        return $this->path;
     }
 
     public function __toString()

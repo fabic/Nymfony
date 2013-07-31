@@ -9,7 +9,9 @@
 
 namespace Fcj\MouvsBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Finder\SplFileInfo;
 
 
 /**
@@ -19,5 +21,62 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Directory extends File
 {
+    /**
+     * @var File
+     *
+     * @ORM\OneToMany(targetEntity="File",
+     *     mappedBy="parent")
+     */
+    protected $files;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="text", nullable=true)
+     */
+    protected $path;
+
+    public function __construct(SplFileInfo $file)
+    {
+        parent::__construct($file);
+        $this->files = new ArrayCollection();
+    }
+
+    public function copyFrom (SplFileInfo $file)
+    {
+        parent::copyFrom($file);
+        $this->path = $file->getRelativePath();
+        return $this;
+    }
+
+    /// inherited. todo: is it ok?
+    public function getRelativePathname()
+    {
+        return $this->path . DIRECTORY_SEPARATOR . $this->name;
+    }
+
+    /**
+     * Set path
+     *
+     * @param string $path
+     * @return File
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get path
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
 
 }
