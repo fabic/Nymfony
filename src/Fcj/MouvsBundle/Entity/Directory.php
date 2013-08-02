@@ -52,7 +52,9 @@ class Directory extends File
     /// inherited. todo: is it ok?
     public function getRelativePathname()
     {
-        return $this->path . DIRECTORY_SEPARATOR . $this->name;
+        return $this->path ?
+              $this->path . DIRECTORY_SEPARATOR . $this->name
+            : $this->name;
     }
 
     /**

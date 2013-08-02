@@ -31,10 +31,17 @@ use Symfony\Component\Finder\SplFileInfo;
  *    Other cases:
  *       Youtube playlists, Vimeo and the like.
  *
+ *    Better, have a url scheme based impl for all of these, e.g.:
+ *          ssh://dude@host.example.com/home/dude/music
+ *          dav://host.example.com/dav/dude
+ *          git://...  ;  svn://...
+ *          youtube://.../playlist/xyz
+ *
+ *
  * @ORM\Table()
  * @ORM\Entity
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorMap({
+ * @ ORM\InheritanceType("SINGLE_TABLE")
+ * @ ORM\DiscriminatorMap({
  *     "local" = "FileSource",
  *     "ssh"   = "SshSource"
  * })
@@ -42,50 +49,50 @@ use Symfony\Component\Finder\SplFileInfo;
  * todo/?: Have it impl. IteratorAggregate & Countable ?
  * todo/?: Symfony's Finder component : Extend it? and/or write adapters for each source?
  *    e.g. getFinder().
- * todo/?: Have it be-a File ? and abstract.
+ * todo/?: Have it be-a Directory ? and abstract?
  */
-class FileSource
+class FileSource extends Directory
 {
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ ORM\Column(type="integer")
+     * @ ORM\Id
+     * @ ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    //protected $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="text")
+     * @ ORM\Column(type="text")
      *
      * todo/?: Have it be an array of "remote" paths that shall be indexed.
      */
-    protected $path;
+    //protected $path;
 
     /**
      * @var boolean True if this source is *actually* a remote repository of files,
      *    such as for locally mounted filesystems (e.g. sshfs, NFS).
      *
-     * @ORM\Column(type="boolean")
+     * @ ORM\Column(type="boolean")
      *
      * todo: $latency? $bandwidth? e.g. for keeping track of typical data transfer rates,
      *    and eventually having a means to determine if a given file might be cached locally
      *    when requested...
      */
-    protected $remote;
+    //protected $remote;
 
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="File", mappedBy="source",
+     * @ ORM\OneToMany(targetEntity="File", mappedBy="source",
      *    orphanRemoval=true, cascade={"all"},
      *    indexBy="inode"
      * )
      * todo: indexBy = "hash" ? or "inode" ?
      */
-    protected $files;
+    //protected $files;
 
     // todo: $owner? here?
     // todo: $visibility := IN private (to user), public (anyone) ?
@@ -98,139 +105,20 @@ class FileSource
      *    orphanRemoval=true, cascade={"all"},
      *    indexBy="inode"
      */
-    protected $directories;
-
-    /**
-     *
-     */
-    public function __construct()
-    {
-        $this->files = new ArrayCollection();
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set path
-     *
-     * @param string $path
-     * @return FileSource
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-    
-        return $this;
-    }
-
-    /**
-     * Get path
-     *
-     * @return string 
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param boolean $remote
-     */
-    public function setRemote($remote)
-    {
-        $this->remote = $remote;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getRemote()
-    {
-        return $this->remote;
-    }
-
-    /** (Re-)Synchronize DB versus on-disk files.
-     * Fixme: rephrase ^ : we really would like to be db oblivious when possible.
-     *
-     * @param \Doctrine\ORM\EntityManager $em Yes? No?
-     *
-     * @return ArrayCollection of File instances, some already baked,
-     *    others not in case of newly discovered files.
-     */
-    public function sync(EntityManager $em)
-    {
-        // todo: Have a custom impl. where *we* do browse
-        // dirs ourselves so as to determine if something
-        // has changed (dir. mtime).
-        $finder = Finder::create()
-            ->in($this->path)
-            ->followLinks()
-            //->files()
-            ->sortByName();
-
-        $i = 0;
-        $files = new ArrayCollection();
-
-        /** @var SplFileInfo $file */
-        foreach($finder AS $file)
-        {
-            $i ++;
-            try {
-                //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
-                //error_log("$i");
-                //$f = new File($file);
-                $f = $this->newFile($file);
-                $g = $this->addFile($f, $file->getRelativePath());
-                $files[$g->getInode()] = $g;
-            }
-            catch(\RuntimeException $ex)
-            {
-                error_log(__METHOD__ . ": ERROR: Caught exception!: " . $ex->getMessage());
-            }
-        }
-
-        return $files;
-    }
-
-    /**
-     * @param \SplFileInfo $sfi
-     * @return File
-     */
-    public function newFile(\SplFileInfo $sfi)
-    {
-        if ($sfi->isDir()) {
-            $dir = new Directory($sfi, $this);
-            return $dir;
-        }
-        // todo: else if ($sfi->isLink()) ???
-        else {
-            $file = new File($sfi, $this);
-            return $file;
-        }
-    }
+    //protected $directories;
 
     /**
      *
      * @param File $file
-     * @param string $path
      * @throws \InvalidArgumentException
      * @return File The actual indexed File instance for $file.
      */
-    public function addFile(File $file, $path)
+    public function addFile(File $file)
     {
         $inode = $file->getInode();
         if (!$inode)
             throw new \InvalidArgumentException(__METHOD__ . ": ERROR: File has *NO* inode!!");
 
-        $parent = $this->lookupDirectoryByPath($path);
         if ($this->files->containsKey($inode)) {
             //error_log("INFO: " .__METHOD__. ": Inode $inode is already baked.");
             error_log("U\t$inode\t{$file->getName()}");
@@ -255,7 +143,7 @@ class FileSource
             //error_log("INFO: " .__METHOD__. ": Inode $inode NEW!!! ({$file->getName()}).");
             error_log("A\t$inode\t{$file->getName()}");
             $file->setSource($this);
-            $file->setAddedOn();
+            $file->setIndexedOn();
             $this->files->set($inode, $file);
             return $file;
         }

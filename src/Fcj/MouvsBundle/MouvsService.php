@@ -9,11 +9,15 @@
 
 namespace Fcj\MouvsBundle;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Query\Expr;
+
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+use Fcj\MouvsBundle\Entity\Directory;
 use Fcj\MouvsBundle\Entity\FileSource;
 use Fcj\MouvsBundle\Entity\File;
 
@@ -44,18 +48,85 @@ class MouvsService
     }
 
     /**
+     * @param FileSource|null $fileSource
+     * @return array of File instances.
+     */
+    public function directories(FileSource $fileSource = null)
+    {
+        $qb = $this->dirsRep()->createQueryBuilder('f');
+        if ($fileSource) {
+            $qb->join('f.source', 'fs')
+                ->where('fs.id = :source_id')
+                ->setParameter('source_id', $fileSource->getId());
+        }
+        $q = $qb->getQuery();
+        $q->execute();
+        $result = $q->getResult();
+        return $result;
+    }
+
+    /** (Re-)Synchronize DB versus on-disk files.
+     *
      * @param FileSource $fileSource
-     * @return Collection of File instances.
+     * @return Collection of File instances, some already baked,
+     *    others not in case of newly discovered files.
      */
     public function sync(FileSource $fileSource)
     {
         error_log(__METHOD__ . ": There we are!");
 
         $em = $this->em;
-        $files = $fileSource->sync();
+
+        //$files = $fileSource->sync();
+        //$files = $this->syncLocalFileSystem($fileSource);
+        // todo: Have a custom impl. where *we* do browse
+        // dirs ourselves so as to determine if something
+        // has changed (dir. mtime).
+
+        // TODO: Better: Have a getIteratorForSource() thing, e.g.
+        // sthg that whichever the source is (ssh, ftp, dav, ...) would
+        // simply return an iterator.
+        $finder = Finder::create()
+            ->in($fileSource->getPath())
+            ->followLinks()
+            //->files()
+            ->sortByName();
+
+        $dirs = $this->directories($fileSource);
+        $dirs = \Fcj\Util::reindex($dirs, 'relativePathname');
+        error_log(print_r(array_keys($dirs), true));
+
+        $i = 0;
+        $files = new ArrayCollection();
+
+        /** @var SplFileInfo $sfi */
+        foreach($finder AS $sfi)
+        {
+            $i ++;
+            try {
+                //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
+                //error_log("$i");
+                //$f = new File($file);
+                if ($sfi->isDir()) {
+                    $dir = new Directory($sfi, $fileSource);
+                    $fileSource->addFile($dir);
+                    $dirs[$dir->getInode()] = $dir;
+                }
+                // todo: else if ($sfi->isLink()) ???
+                else {
+                    $file = new File($sfi, $fileSource);
+                    $fileSource->addFile($file);
+                    $files[$file->getInode()] = $file;
+                }
+            }
+            catch(\RuntimeException $ex)
+            {
+                error_log(__METHOD__ . ": ERROR: Caught exception!: " . $ex->getMessage());
+            }
+        }
 
         //error_log(__METHOD__ . ": FLUSH TO DATABASE !!");
-        //$em->flush();
+        $em->flush();
 
         return $files;
     }
@@ -70,4 +141,14 @@ class MouvsService
         return $this->em->getRepository('FcjMouvsBundle:File');
     }
 
+    /**
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    public function dirsRep()
+    {
+        return $this->em->getRepository('FcjMouvsBundle:Directory');
+    }
+
+    //public function syncLocalFileSystem(FileSource $fileSource) { }   ???
+    // todo/?: Likewise, have syncSshSource(), syncFtpSource(), ...
 }

@@ -14,7 +14,8 @@ use Symfony\Component\Finder\SplFileInfo;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorMap({
  *     "file" = "File",
- *     "dir"  = "Directory"
+ *     "dir"  = "Directory",
+ *     "source" = "FileSource"
  * })
  *
  * TODO: xattr : Read extended attributes?
@@ -33,10 +34,10 @@ class File //extends SplFileInfo
     /**
      * @var FileSource
      *
-     * @ORM\ManyToOne(targetEntity="FileSource",
+     * @ ORM\ManyToOne(targetEntity="FileSource",
      *     inversedBy="files")
      */
-    protected $source;
+    //protected $source;
 
     /**
      * @var File
@@ -52,7 +53,7 @@ class File //extends SplFileInfo
      * @ORM\Column(type="integer", nullable=true)
      * todo: rename it to indexedOn.
      */
-    protected $addedOn;
+    protected $indexedOn;
 
     /**
      * @var integer
@@ -103,11 +104,10 @@ class File //extends SplFileInfo
     protected $name;
 
 
-    public function __construct (SplFileInfo $file, FileSource $source=null)
+    public function __construct (SplFileInfo $file)
     {
         //parent::__construct($file);
         //parent::setInfoClass(get_class());
-        $this->source = $source;
         $this->copyFrom($file);
     }
 
@@ -155,35 +155,19 @@ class File //extends SplFileInfo
     }
 
     /**
-     * @param FileSource $source
-     */
-    public function setSource($source)
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return FileSource
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
      * @param int $addedOn
      */
-    public function setAddedOn($addedOn=null)
+    public function setIndexedOn($addedOn=null)
     {
-        $this->addedOn = $addedOn===null ? time() : $addedOn;
+        $this->indexedOn = $addedOn===null ? time() : $addedOn;
     }
 
     /**
      * @return int
      */
-    public function getAddedOn()
+    public function getIndexedOn()
     {
-        return $this->addedOn;
+        return $this->indexedOn;
     }
 
     /**
@@ -308,6 +292,6 @@ class File //extends SplFileInfo
 
     public function __toString()
     {
-        return "{$this->name} ({$this->inode})";
+        return "ID:{$this->id} - name:{$this->name} (inode:{$this->inode})";
     }
 }
