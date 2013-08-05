@@ -25,7 +25,9 @@ class Directory extends File
      * @var File
      *
      * @ORM\OneToMany(targetEntity="File",
-     *     mappedBy="parent")
+     *     mappedBy="parent",
+     *     indexBy="inode"
+     * )
      */
     protected $files;
 
@@ -36,7 +38,7 @@ class Directory extends File
      */
     protected $path;
 
-    public function __construct(SplFileInfo $file)
+    public function __construct(SplFileInfo $file = null)
     {
         parent::__construct($file);
         $this->files = new ArrayCollection();
@@ -52,8 +54,12 @@ class Directory extends File
     /// inherited. todo: is it ok?
     public function getRelativePathname()
     {
-        return $this->path ?
-              $this->path . DIRECTORY_SEPARATOR . $this->name
+//        return $this->path ?
+//              $this->path . DIRECTORY_SEPARATOR . $this->name
+//            : $this->name;
+        $ppath = $this->parent ? $this->parent->getRelativePathname() : '';
+        return $ppath ?
+              $ppath . DIRECTORY_SEPARATOR . $this->name
             : $this->name;
     }
 
@@ -78,6 +84,14 @@ class Directory extends File
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return \Fcj\MouvsBundle\Entity\File
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 
 

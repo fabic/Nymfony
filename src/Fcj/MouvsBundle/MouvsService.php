@@ -94,6 +94,7 @@ class MouvsService
 
         $dirs = $this->directories($fileSource);
         $dirs = \Fcj\Util::reindex($dirs, 'relativePathname');
+        $dirs[''] = $fileSource;
         error_log(print_r(array_keys($dirs), true));
 
         $i = 0;
@@ -104,17 +105,21 @@ class MouvsService
         {
             $i ++;
             try {
-                //error_log("{$file->getFilename()} [{$file->getInode()}] ({$file->getSize()}, {$file->getRelativePath()})");
+                error_log("#$i - {$sfi->getFilename()} [{$sfi->getInode()}] ({$sfi->getSize()}, {$sfi->getRelativePath()})");
                 //error_log("$i");
                 //$f = new File($file);
+                $rpath = $sfi->getRelativePath();
+                $parent = array_key_exists($rpath, $dirs) ? $dirs[$rpath] : null;
                 if ($sfi->isDir()) {
-                    $dir = new Directory($sfi, $fileSource);
+                    $dir = new Directory($sfi);
+                    $dir->setParent($parent);
                     $fileSource->addFile($dir);
-                    $dirs[$dir->getInode()] = $dir;
+                    $dirs[$dir->getRelativePathname()] = $dir;
                 }
                 // todo: else if ($sfi->isLink()) ???
                 else {
-                    $file = new File($sfi, $fileSource);
+                    $file = new File($sfi);
+                    $file->setParent($parent);
                     $fileSource->addFile($file);
                     $files[$file->getInode()] = $file;
                 }

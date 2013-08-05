@@ -34,10 +34,10 @@ class File //extends SplFileInfo
     /**
      * @var FileSource
      *
-     * @ ORM\ManyToOne(targetEntity="FileSource",
-     *     inversedBy="files")
+     * @ORM\ManyToOne(targetEntity="FileSource",
+     *     inversedBy="inodes")
      */
-    //protected $source;
+    protected $source;
 
     /**
      * @var File
@@ -65,28 +65,29 @@ class File //extends SplFileInfo
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer", unique=true)
+     * @ORM\Column(type="integer", nullable=true)
+     * Note: Was unique=true.
      */
     protected $inode;
 
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $ctime;
 
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $mtime;
 
     /**
      * @var integer
      *
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $size;
 
@@ -104,11 +105,12 @@ class File //extends SplFileInfo
     protected $name;
 
 
-    public function __construct (SplFileInfo $file)
+    public function __construct (SplFileInfo $file = null)
     {
         //parent::__construct($file);
         //parent::setInfoClass(get_class());
-        $this->copyFrom($file);
+        if ($file)
+            $this->copyFrom($file);
     }
 
     /** Sort of a copy constructor.
@@ -152,6 +154,38 @@ class File //extends SplFileInfo
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param \Fcj\MouvsBundle\Entity\FileSource $source
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @return \Fcj\MouvsBundle\Entity\FileSource
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param \Fcj\MouvsBundle\Entity\File $parent
+     */
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return \Fcj\MouvsBundle\Entity\File
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 
     /**

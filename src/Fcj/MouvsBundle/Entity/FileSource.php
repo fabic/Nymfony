@@ -38,7 +38,6 @@ use Symfony\Component\Finder\SplFileInfo;
  *          youtube://.../playlist/xyz
  *
  *
- * @ORM\Table()
  * @ORM\Entity
  * @ ORM\InheritanceType("SINGLE_TABLE")
  * @ ORM\DiscriminatorMap({
@@ -54,24 +53,6 @@ use Symfony\Component\Finder\SplFileInfo;
 class FileSource extends Directory
 {
     /**
-     * @var integer
-     *
-     * @ ORM\Column(type="integer")
-     * @ ORM\Id
-     * @ ORM\GeneratedValue(strategy="AUTO")
-     */
-    //protected $id;
-
-    /**
-     * @var string
-     *
-     * @ ORM\Column(type="text")
-     *
-     * todo/?: Have it be an array of "remote" paths that shall be indexed.
-     */
-    //protected $path;
-
-    /**
      * @var boolean True if this source is *actually* a remote repository of files,
      *    such as for locally mounted filesystems (e.g. sshfs, NFS).
      *
@@ -86,13 +67,13 @@ class FileSource extends Directory
     /**
      * @var ArrayCollection
      *
-     * @ ORM\OneToMany(targetEntity="File", mappedBy="source",
+     * @ORM\OneToMany(targetEntity="File", mappedBy="source",
      *    orphanRemoval=true, cascade={"all"},
      *    indexBy="inode"
      * )
      * todo: indexBy = "hash" ? or "inode" ?
      */
-    //protected $files;
+    protected $inodes;
 
     // todo: $owner? here?
     // todo: $visibility := IN private (to user), public (anyone) ?
@@ -108,6 +89,15 @@ class FileSource extends Directory
     //protected $directories;
 
     /**
+     * @return string
+     */
+    public function getRelativePathname()
+    {
+        //return $this->path;
+        return '';
+    }
+
+    /**
      *
      * @param File $file
      * @throws \InvalidArgumentException
@@ -119,11 +109,11 @@ class FileSource extends Directory
         if (!$inode)
             throw new \InvalidArgumentException(__METHOD__ . ": ERROR: File has *NO* inode!!");
 
-        if ($this->files->containsKey($inode)) {
+        if ($this->inodes->containsKey($inode)) {
             //error_log("INFO: " .__METHOD__. ": Inode $inode is already baked.");
-            error_log("U\t$inode\t{$file->getName()}");
+            //error_log("U\t$inode\t{$file->getName()}");
             /** @var File $baked */
-            $baked = $this->files->get($inode);
+            $baked = $this->inodes->get($inode);
             // CTime : Update if Inode has changed.
             if ($baked->getCTime() != $file->getCTime()) {
                 $baked->setName($file->getName());
@@ -141,24 +131,13 @@ class FileSource extends Directory
             return $baked;
         } else { // fixme !?
             //error_log("INFO: " .__METHOD__. ": Inode $inode NEW!!! ({$file->getName()}).");
-            error_log("A\t$inode\t{$file->getName()}");
+            //error_log("A\t$inode\t{$file->getName()}");
             $file->setSource($this);
             $file->setIndexedOn();
-            $this->files->set($inode, $file);
+            $this->inodes->set($inode, $file);
             return $file;
         }
     }
 
-    /**
-     * Get files
-     *
-     *
-     * @return ArrayCollection
-     */
-    public function getFiles()
-    {
-        return $this->files;
-    }
-
-    // todo: getRemoteFiles()
+    // todo: getRemoteFiles() ?
 }

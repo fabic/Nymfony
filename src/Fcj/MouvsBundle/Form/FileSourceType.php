@@ -11,8 +11,9 @@ class FileSourceType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('path')
-            ->add('remote')
+            ->add('path', 'text')
+            ->add('name', 'text')
+            //->add('remote')
         ;
     }
 
