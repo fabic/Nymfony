@@ -1,3 +1,9 @@
+# File: app/config/parameters.yml.dist
+#
+# Fcj.2013-09-06 : This is now (Symfony 2.3) a template file used by
+#    incenteev/composer-parameter-handler for automatic generation of
+#    parameters.yml
+#
 parameters:
     database_driver:   pdo_sqlite
     #database_driver:   pdo_mysql
