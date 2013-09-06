@@ -20,7 +20,9 @@
         "psr-0": {
             "Fcj\\": "lib/",
             "": "src/"
-        }
+        },
+        "classmap": [],
+        "files": [ ]
     },
 
     "include-path": [
