@@ -54,7 +54,8 @@
         "craue/formflow-bundle": "dev-master",
 
         "mopa/bootstrap-bundle": "2.2.x@dev",
-        "twbs/bootstrap": "2.*"
+        "twbs/bootstrap": "2.*",
+        "jlong/sass-twitter-bootstrap": "dev-master"
     },
 
     "require-dev": {
