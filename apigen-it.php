@@ -40,6 +40,12 @@ $classMap     = $loader->getClassMap();
 
 $sources = call_user_func_array('array_merge', $prefixes);
 $sources = array_merge($sources, $fallbackDirs, $classMap);
+
+$sources[] = "app/AppCache.php";
+$sources[] = "app/AppKernel.php";
+$sources[] = "app/check.php";
+$sources[] = "app/SymfonyRequirements.php";
+
 $sources = array_filter($sources);
 $sources = array_unique($sources);
 //var_dump($sources); exit;
