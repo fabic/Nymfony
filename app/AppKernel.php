@@ -20,6 +20,8 @@ class AppKernel extends Kernel
             new JMS\DiExtraBundle\JMSDiExtraBundle($this),
             new JMS\SecurityExtraBundle\JMSSecurityExtraBundle(),
 
+	        new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
+
             new JMS\SerializerBundle\JMSSerializerBundle($this),
             new FOS\RestBundle\FOSRestBundle(),
 
