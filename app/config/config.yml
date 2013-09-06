@@ -23,6 +23,8 @@ framework:
         #assets_version: SomeVersionScheme
     default_locale:  "%locale%"
     trusted_proxies: ~
+    # Fcj.2013-08-14 : After upgrade to Symfony 2.2.5, this seems to have been dropped.
+    #trust_proxy_headers: false # Whether or not the Request object should trust proxy headers (X_FORWARDED_FOR/HTTP_CLIENT_IP)
     session:         ~
     fragments:       ~
 
