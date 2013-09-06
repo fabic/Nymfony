@@ -4,24 +4,30 @@
 #
 # A simple shortcut for grep-ing...
 #
+# TODO: Exclude app/cache/, app/logs/, tmp/, ...
+#    Fixme: The exclude pattern for app/cache/ & app/logs/ should be more specific!
+#
+# TODO: pgrep, egrep ?
 
-# Real path to us so that we can be symlinked.
+# Real path to us so that we can be symlinked, hummm, why?
 HERE=$(cd `dirname $(realpath "$0")` && pwd )
 
 # Usage
 if [ $# -lt 1 ]; then
-	echo
-	echo "Usage: $0 <grep arguments>"
-	echo "  Grep for stuff from your project root ($HERE)"
-	echo
-	exit 1
+    echo "This is actually a GREP wrapper for searching your PHP/Symfony2 code."
+    echo "Usage: $0 <any grep argument>"
+    echo "       $0 <some_grep_arguments> <pattern> [dir1/ dir2/ ... dirN/]"
+    echo "Examples:"
+    echo "    $0 DefaultController src/ vendor/acme/
+    echo "    $0 -i framework app/"
+    exit 1
 fi
 
 cd "$HERE"
 
 echo "INFO: Grepping from \``pwd`'"
 
-grep -rHni \
+grep -rHn \
 	--exclude-dir='.*' \
 	--exclude-dir=cache \
 	--exclude-dir=logs \
