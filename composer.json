@@ -24,7 +24,7 @@
             "": "src/"
         },
         "classmap": [],
-        "files": [ ]
+        "files": [ "lib/dev_functions.php" ]
     },
 
     "include-path": [
