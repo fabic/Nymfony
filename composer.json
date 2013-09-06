@@ -67,7 +67,9 @@
 
     "require-dev": {
         "apigen/apigen": ">=2.8.0",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "ccampbell/chromephp": "dev-master",
+        "firephp/firephp-core": "dev-master"
     },
 
     "repositories": [
