@@ -21,3 +21,13 @@ parameters:
 
     locale:            en
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    # Fcj.2013-06-25 : For DB-baked PHP session storage;
+    #    @link http://symfony.com/doc/current/cookbook/configuration/pdo_session_storage.html
+    #    See also config.yml « framework.session.handler_id », « services.pdo » & « services.session.handler.pdo ».
+    #    See http://symfony.com/doc/current/cookbook/configuration/pdo_session_storage.html#mysql for the CREATE DQLs.
+    pdo.db_options:
+        db_table:    session
+        db_id_col:   session_id
+        db_data_col: session_value
+        db_time_col: session_time

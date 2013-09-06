@@ -28,6 +28,34 @@ framework:
     session:         ~
     fragments:       ~
 
+    ## Fcj.2013-06-25 : DB-baked sessions so as to circumvent locking upon sub-request (e.g. curl) ;
+    ##    related to PHP's session file locking mecanism (@see http://php.net/manual/fr/function.session-start.php);
+    ##    @see http://symfony.com/doc/current/cookbook/configuration/pdo_session_storage.html
+    ##    @see http://konrness.com/php5/how-to-prevent-blocking-php-requests/
+    ## See also (inherebelow) « services.pdo » service definition.
+    #    handler_id:     session.handler.pdo
+
+services:
+    # Fcj.2013-06-25 : For the DB-baked session storage thing, using the same
+    # database as Doctrine DBAL/ORM.
+    #    @see http://symfony.com/doc/current/cookbook/configuration/pdo_session_storage.html
+    pdo:
+        class: PDO
+        arguments:
+            #dsn:      "mysql:host=%database_host%;port=%database_port%;dbname=%database_name%"
+            dsn:      "mysql:host=%database_host%;dbname=%database_name%"
+            user:     "%database_user%"
+            password: "%database_password%"
+        # FC.2013-08-21 : Needed after upgrade of Symfony 2.2.x to 2.3.x
+        calls:
+            - [setAttribute, [3, 2]] # \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION
+
+    session.handler.pdo:
+        class:     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+        arguments: ["@pdo", "%pdo.db_options%"]
+
+
+
 # Twig Configuration
 twig:
     debug:            %kernel.debug%
