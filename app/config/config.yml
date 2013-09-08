@@ -1,3 +1,4 @@
+# File: app/config/config.yml
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
@@ -14,7 +15,7 @@ framework:
     secret:          %secret%
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
-        strict_requirements: %kernel.debug%
+        strict_requirements: ~
     form:            ~
     csrf_protection: ~
     validation:      { enable_annotations: true }
@@ -27,6 +28,7 @@ framework:
     #trust_proxy_headers: false # Whether or not the Request object should trust proxy headers (X_FORWARDED_FOR/HTTP_CLIENT_IP)
     session:         ~
     fragments:       ~
+    http_method_override: true
 
     ## Fcj.2013-06-25 : DB-baked sessions so as to circumvent locking upon sub-request (e.g. curl) ;
     ##    related to PHP's session file locking mecanism (@see http://php.net/manual/fr/function.session-start.php);

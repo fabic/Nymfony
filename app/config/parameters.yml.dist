@@ -6,8 +6,8 @@
 #
 parameters:
     database_driver:   pdo_sqlite
-    #database_driver:   pdo_mysql
     database_path:     "%kernel.root_dir%/app.sqlite"
+    #database_driver:   pdo_mysql
     database_host:     127.0.0.1
     database_port:     ~
     database_name:     nymph

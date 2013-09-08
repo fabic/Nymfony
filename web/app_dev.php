@@ -25,7 +25,11 @@ require_once __DIR__.'/../app/AppKernel.php';
 
 $kernel = new AppKernel('dev', true);
 $kernel->loadClassCache();
-Request::enableHttpMethodParameterOverride();
+
+// Fcj-2013-09-08 : Left c/o as this line was removed somewhere before v2.3.4
+// @see app/config/config.yml : framework.http_method_override set to true.
+//Request::enableHttpMethodParameterOverride();
+
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
