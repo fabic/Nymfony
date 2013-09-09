@@ -8,6 +8,19 @@ DirectoryIndex app.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    #
+    ## Fcj.2013-09-09 : Previous .htaccess did things this way.
+    #<IfModule mod_vhost_alias.c>
+    #    RewriteBase /
+    #</IfModule>
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ app_dev.php [QSA,L]
+    #RewriteRule ^(.*)$ app.php [QSA,L]
+
+    ## End-of previous .htaccess
+    #
+
     # Determine the RewriteBase automatically and set it as environment variable.
     # If you are using Apache aliases to do mass virtual hosting or installed the
     # project in a subdirectory, the base path will be prepended to allow proper
