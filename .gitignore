@@ -1,6 +1,9 @@
+# .gitignore
+
 /web/bundles/
 /web/js/
 /web/css/
+
 /app/bootstrap.php.cache
 /app/cache/*
 /app/config/parameters.yml
@@ -8,10 +11,15 @@
 !app/cache/.gitkeep
 !app/logs/.gitkeep
 /app/phpunit.xml
+
 /build/
 /vendor/
-/bin/
+
+# Moved vendor binaries under vendor/bin/ (see composer.json)
+# /bin/
+
 /composer.phar
 *.sqlite
+
 app/check.php
 app/SymfonyRequirements.php

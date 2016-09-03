@@ -65,7 +65,7 @@
         ]
     },
     "config": {
-        "bin-dir": "bin"
+        "bin-dir": "vendor/bin"
     },
     "extra": {
         "symfony-app-dir": "app",
