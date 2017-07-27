@@ -98,8 +98,8 @@ cmf_core:
 #            Symfony\Cmf\Bundle\ContentBundle\Doctrine\Phpcr\StaticContent: 'page/index.html.twig'
 
 # Menu Configuration
-#knp_menu:
-#    twig: true
+knp_menu:
+    twig: true
 
 # Block Configuration
 sonata_block:

@@ -19,19 +19,22 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
 
             // Symfony CMF Standard Edition Bundles
-            new Doctrine\Bundle\PHPCRBundle\DoctrinePHPCRBundle(),
-            new Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle(),
+            new Symfony\Cmf\Bundle\RoutingBundle\CmfRoutingBundle(),
             new Symfony\Cmf\Bundle\CoreBundle\CmfCoreBundle(),
             new Symfony\Cmf\Bundle\ContentBundle\CmfContentBundle(),
-            new Symfony\Cmf\Bundle\RoutingBundle\CmfRoutingBundle(),
-            //new Symfony\Cmf\Bundle\SimpleCmsBundle\CmfSimpleCmsBundle(),
-
+            new Symfony\Cmf\Bundle\MenuBundle\CmfMenuBundle(),
             new Symfony\Cmf\Bundle\BlockBundle\CmfBlockBundle(),
+
+            new Doctrine\Bundle\PHPCRBundle\DoctrinePHPCRBundle(),
+            new Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle(),
+
+            new Knp\Bundle\MenuBundle\KnpMenuBundle(),
+
             new Sonata\BlockBundle\SonataBlockBundle(),
             new Sonata\CoreBundle\SonataCoreBundle(),
 
-            new Symfony\Cmf\Bundle\MenuBundle\CmfMenuBundle(),
-            new Knp\Bundle\MenuBundle\KnpMenuBundle(),
+
+            //new Symfony\Cmf\Bundle\SimpleCmsBundle\CmfSimpleCmsBundle(),
 
             //new Symfony\Cmf\Bundle\CreateBundle\CmfCreateBundle(),
             //new FOS\RestBundle\FOSRestBundle(),
